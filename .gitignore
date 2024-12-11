@@ -1,0 +1,10 @@
+.ionide/
+
+.vscode/
+
+bin/
+
+obj/
+
+TestResults/
+.fake
