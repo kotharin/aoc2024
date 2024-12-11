@@ -1,2 +1,9 @@
-﻿// For more information see https://aka.ms/fsharp-console-apps
-printfn "Hello from F#"
+﻿
+module Program =
+    
+    let [<EntryPoint>] main _ =
+
+        let answer = Day1.Part1.solution "Day1-1.txt"
+
+        printfn "answer: %i" answer
+        0
