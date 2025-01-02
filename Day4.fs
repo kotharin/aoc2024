@@ -113,3 +113,109 @@ module Part1 =
             |> List.length
         )
         |> Array.sum
+
+module Part2 = 
+    open System.IO
+
+    let checkDiagRightDown maxRows maxCols (grid:Map<(int*int), string>) position =
+        // check if it falls outside max rows/columns allowed
+        let currentRow, currentCol = position
+
+        if ((currentRow + 2 <= maxRows)&& (currentCol + 2 <= maxCols)) then
+            if ((grid.[(currentRow + 1, currentCol + 1)] = "A") && (grid.[(currentRow + 2, currentCol + 2)] = "S")) then
+                Some((currentRow + 1, currentCol + 1))
+            else
+                None
+        else
+            None
+
+    let checkDiagLeftUp  (grid:Map<(int*int), string>) position =
+        // check if it falls outside max rows/columns allowed
+        let currentRow, currentCol = position
+
+        if ((currentRow - 2 >= 0) && (currentCol - 2 >= 0)) then
+            if ((grid.[(currentRow - 1, currentCol - 1)] = "A") && (grid.[(currentRow - 2, currentCol - 2)] = "S")) then
+                Some((currentRow - 1, currentCol - 1))
+            else
+                None
+        else
+            None
+
+    let checkDiagLeftDown maxRows (grid:Map<(int*int), string>) position =
+        // check if it falls outside max rows/columns allowed
+        let currentRow, currentCol = position
+
+        if ((currentRow + 2 <= maxRows)&& (currentCol - 2 >= 0)) then
+            if ((grid.[(currentRow + 1, currentCol - 1)] = "A") && (grid.[(currentRow + 2, currentCol - 2)] = "S")) then
+                Some((currentRow + 1, currentCol - 1))
+            else
+                None
+        else
+            None
+
+    let checkDiagRightUp maxCols (grid:Map<(int*int), string>) position =
+        // check if it falls outside max rows/columns allowed
+        let currentRow, currentCol = position
+
+        if ((currentRow - 2 >= 0) && (currentCol + 2 <= maxCols)) then
+            if ((grid.[(currentRow - 1, currentCol + 1)] = "A") && (grid.[(currentRow - 2, currentCol + 2)] = "S")) then
+                Some((currentRow - 1, currentCol + 1))
+            else
+                None
+        else
+            None
+
+    let solution file =
+
+        let lines = File.ReadAllLines file
+
+        let rowCounter, positionMap, allMPositions =
+            lines
+            |> Array.fold (fun (curRow, curMap, curXList) line ->
+            
+                let _, newGrid, newXs =
+                    line.ToCharArray()
+                    |> Array.fold(fun (curCol, cMap, cxList) currentVal ->
+                        let newMap = Map.add (curRow, curCol) (currentVal.ToString()) cMap
+                        let newXList =
+                            if (currentVal = 'M') then
+                                (curRow, curCol) :: cxList
+                            else
+                                cxList
+                        (curCol + 1, newMap, newXList)
+                    ) (0, curMap, curXList)
+                (curRow + 1, newGrid, newXs)
+            ) (0, Map.empty, List.empty)
+        
+
+        let maxRows = rowCounter - 1
+
+        let maxCols = lines.[0].Length - 1
+
+        let x = 
+            [|
+                checkDiagLeftUp positionMap;
+                checkDiagRightDown maxRows maxCols positionMap
+            |]
+            |> Array.map(fun fn ->
+                List.map fn allMPositions
+                |> List.choose id
+            )
+            |> List.concat
+            |> Set.ofList
+
+        let y = 
+            [|
+                checkDiagLeftDown maxRows positionMap;
+                checkDiagRightUp  maxCols positionMap
+            |]
+            |> Array.map(fun fn ->
+                List.map fn allMPositions
+                |> List.choose id
+            )
+            |> List.concat
+            |> Set.ofList
+        
+        Set.intersect x y
+        |> Set.count
+
