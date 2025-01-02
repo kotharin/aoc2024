@@ -124,8 +124,6 @@ module Part2 =
             closestDo > closestDont
     let solution file =
 
-
-
         let lines = File.ReadAllText file
 
         let dos = getDos lines
