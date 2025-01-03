@@ -1,9 +1,9 @@
 namespace Day5
 
-module Part1 = 
+
+module Shared = 
 
     open System
-    open System.IO
     let parsePageOrdering (ordering:Map<int, Set<int>>) (line:string) =
         // parse the line
         let nums = line.Split([|'|'|])
@@ -27,6 +27,16 @@ module Part1 =
         // add to the list
         List.append updates [nums]
 
+    let getMiddleNumber (line:int array) =
+        if (line.Length > 0) then
+            let index = (int)(Math.Floor((decimal)line.Length/(2.0m)))
+            line.[index]
+        else
+            0
+
+module Part1 = 
+    open System.IO
+    open Shared
     let validateLine (ordering:Map<int, Set<int>>) (line:int array) =
         let startingSet = Set.ofArray line
         // check each number. If the numbers that remain after removing the current
@@ -51,12 +61,6 @@ module Part1 =
             ) (true, startingSet)
 
         lineIsValid
-    let getMiddleNumber (line:int array) =
-        if (line.Length > 0) then
-            let index = (int)(Math.Floor((decimal)line.Length/(2.0m)))
-            line.[index]
-        else
-            0
     let solution file =
 
         let lines = File.ReadAllLines file
