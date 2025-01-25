@@ -19,82 +19,43 @@ module Part1 =
 
             {Inputs=inputs; Output = output}
 
-    let getBounds (nums:int64 array) =
-        let lowerBound = Array.sum nums
+    let rec check (total:int64) (numbers:int64 array) =
 
-        let upperBound =
-            nums
-            |> Array.fold(fun product n ->
-                product * n
-            ) 1L
-
-        lowerBound, upperBound
-
-    let rec check total (remainingTotal:int64) (remainingNumbers: int64 array) usedNumbers =
-        if (remainingTotal = 0) then
-            Some (total, usedNumbers)
+        if (numbers.Length = 1) then
+            total = numbers.[0]
         else
-            if ((remainingNumbers.Length > 0) && (remainingTotal > 0)) then
-                // get the last number from the end
-                let rest, last = 
-                    if remainingNumbers.Length = 1 then
-                        Array.empty, remainingNumbers
-                    else
-                        Array.splitAt (remainingNumbers.Length - 1) remainingNumbers
+            let last = Array.last numbers
+            let rest = 
+                if (numbers.Length > 1) then
+                    Array.sub numbers 0 (numbers.Length - 1)
+                else Array.empty
+            if (total > 0) then
+                (check (total - last) rest) || ((total%last = 0) && (check (total/last) rest))
+            else false
 
-                let newRemTotal, newOp =
-                    if (remainingTotal%last.[0] = 0L) then
-                        let nrt = 
-                            if (remainingTotal/last.[0] = 1) then
-                                0L
-                            else remainingTotal/last.[0]
-                        let nop = "M"
-                        nrt, nop
-                    else
-                        let nrt = remainingTotal - last.[0]
-                        let nop = "A"
-                        nrt, nop
-                let newUsedNumbers = 
-                    if (remainingNumbers.Length = 1) then
-                        last.[0].ToString() + usedNumbers
-                    else
-                        ":" + newOp + ":" +  last.[0].ToString() + ":" + usedNumbers
-
-                check total newRemTotal rest newUsedNumbers
-            else
-                None
-
-            // 
     let solution file = 
 
         let equations = 
             File.ReadAllLines file
             |> Array.map(Equation.parse)
-
-        let inRangeEquations = 
+        
+        let sum = 
             equations
-            |> Array.fold (fun aeq eq ->
-                let lb, ub = getBounds eq.Inputs
-                if ((eq.Output >= lb) && (eq.Output <= ub)) then
-                    Array.append aeq [|eq|]
+            |> Array.fold (fun veq eq ->
+                if check eq.Output eq.Inputs then
+                    Array.append veq [|(eq.Output)|]
                 else
-                    aeq
+                    veq
             ) Array.empty
+            |> Array.sum
+        
 
-        let x = 
-            inRangeEquations
-            |> Array.fold (fun validEq eq ->
-                let veq = check eq.Output eq.Output eq.Inputs ""
-                match veq with
-                | Some (s) ->
-                    Array.append validEq [|s|]
-                | None ->
-                    validEq
-            ) Array.empty
+        //printfn "sum:%A" sum
+        //2299702440363
+        //2299720547558
+        //2299996598890L - correct
+        //
+        // 2299720547558
 
-        printfn "x:%A" x
-
-        let sum = x |> Array.sumBy(fst)
-
-        printfn "sum:%A" sum
-        sum  
+        //2299978491192L
+        sum
