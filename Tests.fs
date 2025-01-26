@@ -68,10 +68,15 @@ module Tests
         let answer = Day6.Part2.solution "Day6-1.txt"
 
         Assert.Equal(1972, answer)
-    //2299996598890
 
     [<Fact>]
     let ``Day7 Part1`` () =
         let answer = Day7.Part1.solution "Day7-1.txt"
 
         Assert.Equal(2299996598890L, answer)
+
+    [<Fact>]
+    let ``Day7 Part2`` () =
+        let answer = Day7.Part2.solution "Day7-1.txt"
+
+        Assert.Equal(362646859298554L, answer)

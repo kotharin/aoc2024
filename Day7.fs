@@ -1,6 +1,6 @@
 namespace Day7
 
-module Part1 = 
+module Shared = 
 
     
     open System
@@ -19,18 +19,25 @@ module Part1 =
 
             {Inputs=inputs; Output = output}
 
+module Part1 =
+
+    open System.IO
+    open Shared
     let rec check (total:int64) (numbers:int64 array) =
 
         if (numbers.Length = 1) then
             total = numbers.[0]
         else
-            let last = Array.last numbers
+            let first = Array.head numbers
+            let second = numbers.[1]
             let rest = 
-                if (numbers.Length > 1) then
-                    Array.sub numbers 0 (numbers.Length - 1)
+                if (numbers.Length > 2) then
+                    Array.sub numbers 2 (numbers.Length - 2)
                 else Array.empty
-            if (total > 0) then
-                (check (total - last) rest) || ((total%last = 0) && (check (total/last) rest))
+            if (check total (Array.append [|first + second|] rest)) then
+                true
+            elif (check total (Array.append [|first * second|] rest) ) then
+                true
             else false
 
     let solution file = 
@@ -58,4 +65,47 @@ module Part1 =
         // 2299720547558
 
         //2299978491192L
+        sum
+
+module Part2 =
+
+    open System.IO
+    open Shared
+
+    let rec check (total:int64) (numbers:int64 array) =
+
+        if (numbers.Length = 1) then
+            total = numbers.[0]
+        else
+            let first = Array.head numbers
+            let second = numbers.[1]
+            let combined = int64 (first.ToString() + second.ToString())
+            let rest = 
+                if (numbers.Length > 2) then
+                    Array.sub numbers 2 (numbers.Length - 2)
+                else Array.empty
+            if (check total (Array.append [|first + second|] rest)) then
+                true
+            elif (check total (Array.append [|first * second|] rest) ) then
+                true
+            elif (check total (Array.append [|combined|] rest)) then
+                true
+            else false
+
+    let solution file =
+
+        let equations = 
+            File.ReadAllLines file
+            |> Array.map(Equation.parse)
+
+        let sum = 
+            equations
+            |> Array.fold (fun veq eq ->
+                if check eq.Output eq.Inputs then
+                    Array.append veq [|(eq.Output)|]
+                else
+                    veq
+            ) Array.empty
+            |> Array.sum
+
         sum
