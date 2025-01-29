@@ -3,7 +3,7 @@ module Program =
     
     let [<EntryPoint>] main _ =
 
-        let answer = Day7.Part2.solution "Day7-1.txt"
+        let answer = Day8.Part1.solution "Day8-1.txt"
 
         printfn "answer: %A" answer
         0
