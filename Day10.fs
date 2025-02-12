@@ -1,6 +1,6 @@
 namespace Day10
 
-module Part1 =
+module Shared =
 
     open System.IO
 
@@ -57,6 +57,9 @@ module Part1 =
         )
 
 
+module Part1 =
+    open Shared
+    open System.IO
     let rec traverse maxRow maxCol (positions:List<int*int>) (startingTrailHead:(int*int)) (trailMap:Map<(int*int), int>) (trailHeadData:Map<(int*int), Set<int*int>>) =
         
         match positions with
@@ -96,5 +99,53 @@ module Part1 =
             traverse trailMap.MaxRow trailMap.MaxCol trailMap.TrailHeads trailMap.TrailHeads.Head trailMap.Map Map.empty
             |> Map.fold(fun state key v ->
                 state + v.Count
+            ) 0
+        totalCount
+
+module Part2 =
+
+    open System.IO
+    open Shared
+
+
+    let rec traverse maxRow maxCol (positions:List<int*int>) (startingTrailHead:(int*int)) (trailMap:Map<(int*int), int>) (trailHeadData:Map<(int*int), int>) =
+        
+        match positions with
+        | [] ->
+            trailHeadData
+        | head::tail ->
+            let currCol, currRow = head
+            // if the current head's height is 9, its the end of the trail
+            let currentHeight = Map.find head trailMap
+            let newTrailHeadData, newPositions, newStartingTrailHead  =
+                if (currentHeight = 9) then
+                    // Add this ot the trail heads data
+                    let trailEnds = Map.tryFind startingTrailHead trailHeadData |> Option.defaultValue 0
+                    let newTrailEnds = trailEnds + 1
+                    let newTHD = Map.add startingTrailHead newTrailEnds trailHeadData
+                    newTHD, tail, startingTrailHead
+                else
+                    // if nto trail end, get adjacent nodes and add
+                    let adjacentPositions = getAdjacentPositions maxRow maxCol trailMap currRow currCol
+                    let newP = List.append adjacentPositions tail
+                    let newSTH =
+                        if (currentHeight = 0) then
+                            head
+                        else startingTrailHead
+                    trailHeadData, newP, newSTH
+            
+            traverse maxRow maxCol newPositions newStartingTrailHead trailMap newTrailHeadData
+
+    let solution file =
+
+
+        let lines = File.ReadAllLines file
+
+        let trailMap = TrailMap.parse lines
+
+        let totalCount =
+            traverse trailMap.MaxRow trailMap.MaxCol trailMap.TrailHeads trailMap.TrailHeads.Head trailMap.Map Map.empty
+            |> Map.fold(fun state key v ->
+                state + v
             ) 0
         totalCount
