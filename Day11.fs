@@ -2,6 +2,7 @@ namespace Day11
 
 module Part1 =
 
+    open System
     open System.IO
     open System.Numerics
 
@@ -20,11 +21,37 @@ module Part1 =
 
     let traverse (nums:int64 array) =
 
-        
+        nums
+        |> Array.map(applyRule)
+        |> Array.concat
+
+    let ttraverseParallel (nums:int64 array) = 
+        let chunks = Array.chunkBySize 1000 nums
+
+        chunks
+        |> Array.Parallel.map(fun chunk ->
+            traverse chunk
+        )
+        |> Array.concat
+
+
+    let traverse2 (nums:int64 array) times =
+        printfn "time:%A" (DateTime.Now)
         let x =
             nums
-            |> Array.map(applyRule)
-            |> Array.concat
+            |> Array.map(fun num ->
+                printfn "num:%i" num
+                let x =
+                    [0..times - 1]
+                    |> List.fold(fun state _ ->
+                        let nd = ttraverseParallel state
+                        //printfn "s:%A" nd
+                        nd)[|num|]
+                printfn "%A" (DateTime.Now)
+                printfn "len:%A" x.Length
+                x.Length
+                )
+            |> Array.sum
         x
     let solution file = 
 
@@ -33,6 +60,8 @@ module Part1 =
             |> (fun txt -> txt.Split([|' '|]))
             |> Array.map int64
 
+        //let x = traverse2 data 75
+        //x
 
         let x =
             [0..24]
