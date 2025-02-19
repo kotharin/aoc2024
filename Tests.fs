@@ -2,7 +2,7 @@ module Tests
 
     open Xunit
 
-    (*
+    
     [<Fact>]
     let ``Day1 Part1`` () =
         let answer = Day1.Part1.solution "Day1-1.txt"
@@ -118,9 +118,15 @@ module Tests
         let answer = Day10.Part2.solution "Day10-1.txt"
 
         Assert.Equal(1764, answer)
-    *)
+    
     [<Fact>]
     let ``Day11 Part1`` () =
         let answer = Day11.Part1.solution "Day11-1.txt"
 
         Assert.Equal(183620, answer)
+
+    [<Fact>]
+    let ``Day12 Part1`` () =
+        let answer = Day12.Part1.solution "Day12-1.txt"
+
+        Assert.Equal(1450422, answer)
